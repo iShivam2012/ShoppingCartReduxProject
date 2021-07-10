@@ -1,12 +1,25 @@
+import { act } from "react-dom/cjs/react-dom-test-utils.production.min";
 import { combineReducers, createStore } from "redux";
 
 const uiInitialState = {
   isCartVisible: false,
+  notification: null,
 };
 const uiReducer = (state = uiInitialState, action) => {
   if (action.type === "TOGGLE") {
     return {
+      ...state,
       isCartVisible: !state.isCartVisible,
+    };
+  }
+  if (action.type === "SHOW_NOTIFICATION") {
+    return {
+      ...state,
+      notification: {
+        status: action.payload.status,
+        title: action.payload.title,
+        message: action.payload.message,
+      },
     };
   }
   return state;
@@ -16,6 +29,13 @@ const cartState = {
   items: [],
   totalQuantity: 0,
 };
+
+// const replaceCartReducer = (state = cartState, action) => {
+//   return {
+//     items: action.payload.items,
+//     totalQuantity: action.payload.totalQuantity,
+//   };
+// };
 
 const cartReducer = (state = cartState, action) => {
   if (action.type === "ADD_ITEM") {
@@ -72,6 +92,7 @@ const cartReducer = (state = cartState, action) => {
 const rootReducer = combineReducers({
   cartVisible: uiReducer,
   cart: cartReducer,
+  // replace: replaceCartReducer,
 });
 const store = createStore(rootReducer);
 
