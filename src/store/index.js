@@ -1,5 +1,5 @@
-import { act } from "react-dom/cjs/react-dom-test-utils.production.min";
-import { combineReducers, createStore } from "redux";
+import { applyMiddleware, compose, combineReducers, createStore } from "redux";
+import thunk from "redux-thunk";
 
 const uiInitialState = {
   isCartVisible: false,
@@ -28,16 +28,16 @@ const uiReducer = (state = uiInitialState, action) => {
 const cartState = {
   items: [],
   totalQuantity: 0,
+  changed: false,
 };
 
-// const replaceCartReducer = (state = cartState, action) => {
-//   return {
-//     items: action.payload.items,
-//     totalQuantity: action.payload.totalQuantity,
-//   };
-// };
-
 const cartReducer = (state = cartState, action) => {
+  if (action.type === "REPLACE_CART") {
+    return {
+      items: action.payload.items,
+      totalQuantity: action.payload.totalQuantity,
+    };
+  }
   if (action.type === "ADD_ITEM") {
     const newItem = action.payload;
     const existingItemIndex = state.items.findIndex(
@@ -60,6 +60,7 @@ const cartReducer = (state = cartState, action) => {
     return {
       items: updatedItems,
       totalQuantity: state.totalQuantity + 1,
+      changed: true,
     };
   }
   if (action.type === "REMOVE_ITEM") {
@@ -84,6 +85,7 @@ const cartReducer = (state = cartState, action) => {
     return {
       items: updatedItems,
       totalQuantity: state.totalQuantity - 1,
+      changed: true,
     };
   }
   return state;
@@ -92,8 +94,7 @@ const cartReducer = (state = cartState, action) => {
 const rootReducer = combineReducers({
   cartVisible: uiReducer,
   cart: cartReducer,
-  // replace: replaceCartReducer,
 });
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, compose(applyMiddleware(thunk)));
 
 export default store;

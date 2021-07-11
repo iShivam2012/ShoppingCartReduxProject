@@ -9,7 +9,7 @@ export const sendCartData = (cart) => {
       },
     });
 
-    const sendRequest = () => {
+    const sendRequest = async () => {
       const response = await fetch(
         "https://foodorderingappv1-default-rtdb.firebaseio.com/cart.json",
         {
@@ -40,5 +40,40 @@ export const sendCartData = (cart) => {
         },
       });
     });
+  };
+};
+
+export const fetchCartData = () => {
+  return async (dispatch) => {
+    const fetchData = async () => {
+      const response = await fetch(
+        "https://foodorderingappv1-default-rtdb.firebaseio.com/cart.json"
+      );
+      if (!response.ok) {
+        throw new Error("Something went wrong");
+      }
+
+      const cartData = await response.json();
+      return cartData;
+    };
+    try {
+      const cart = await fetchData();
+      dispatch({
+        type: "REPLACE_CART",
+        payload: {
+          items: cart.items || [],
+          totalQuantity: cart.totalQuantity,
+        },
+      });
+    } catch (error) {
+      dispatch({
+        type: "SHOW_NOTIFICATION",
+        payload: {
+          status: "error",
+          title: "Error!",
+          message: "Error occurred",
+        },
+      });
+    }
   };
 };

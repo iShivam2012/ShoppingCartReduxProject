@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { sendCartData } from "./components/Action/cart-action";
+import { fetchCartData, sendCartData } from "./components/Action/cart-action";
 import Cart from "./components/Cart/Cart";
 import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
@@ -11,6 +11,10 @@ function App() {
   const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.cartVisible.notification);
+
+  useEffect(() => {
+    dispatch(fetchCartData());
+  }, []);
 
   useEffect(() => {
     // const sendRequest = async () => {
@@ -60,7 +64,9 @@ function App() {
       inital = false;
       return;
     }
-    dispatch(sendCartData(cart));
+    if (cart.changed) {
+      dispatch(sendCartData(cart));
+    }
   }, [cart]);
 
   return (
